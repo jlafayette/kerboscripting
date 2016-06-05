@@ -45,7 +45,7 @@ until runmode = 0 {
         else if eta:apoapsis < 20 {
             set warp to 0.
             lock steering to heading(tgt_direction, 0).
-            if eta:apoapsis < .5 {
+            if eta:apoapsis < 5 {
                 set runmode to 2.
             }
         }
