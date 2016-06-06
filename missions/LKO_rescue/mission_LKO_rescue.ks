@@ -25,6 +25,7 @@ delete f_tgt from 1.
 // LAUNCH
 clearscreen.
 copy f_pid.ks from 0. run f_pid.
+copy f_autostage from 0. run once f_autostage.
 copy launch.ks from 0.
 // TODO: get tgt vessel altitude 30 in the future at the approx meeting point.
 run launch((tgt_ves:altitude), 200, tgt_direction).

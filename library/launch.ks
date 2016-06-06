@@ -1,17 +1,16 @@
 //handles launching and ends after clearing the atmosphere 70km
-// requires f_pid
+// requires f_pid, f_autostage
 
 
 parameter target_altitude.
 parameter init_up_distance is 200.
-parameter target_direction is 90. //Not tested with any other values.
+parameter target_direction is 90.
 
 
 function get_terminal_velocity {
     local x to ship:altitude.
     return 99.292*constant():e^(9.728E-5*x).
 }
-
 
 // Set basic config
 sas off.
@@ -30,11 +29,7 @@ gear off.
 set runmode to 1.
 
 set target_pitch to 90.
-set prevThrust to 0.
 set pid_initialized to false.
-
-// used for equation to determine target pitch
-//set _d_calc to target_altitude - init_up_distance * 2.
 
 until runmode = 0 {
     if runmode = 1 { // launch
@@ -59,12 +54,10 @@ until runmode = 0 {
     }
         
     else if runmode = 3 { // main ascent mode
-        //set target_pitch to min(90, (90*((target_altitude - ship:obt:apoapsis) / _d_calc))).
         set target_pitch to max(5, 90 * (1 - (alt:radar - init_up_distance) / 40000)).
         lock steering to heading (target_direction, target_pitch).
         
         // PID loop for throttle until above main atmosphere
-        
         if (ship:altitude < 38000) and (ship:obt:apoapsis < 0.99 * target_altitude) {
             if pid_initialized = false {
                 init_pid(.25, 0, 0).
@@ -129,21 +122,7 @@ until runmode = 0 {
         clearscreen.
         set runmode to 0.
     }
-           
-    // ascent staging logic
-    if maxthrust < (prevThrust - 10) {
-        lock throttle to 0.
-        wait 1.
-        stage.
-        wait 1.
-        until maxthrust > 0 {
-            stage.
-            wait 1.
-        }
-        set prevThrust to maxthrust.
-    }
-    set prevThrust to maxthrust.
-        
+    autostage(). // ascent staging logic
     lock throttle to tval.
     
     print "RUNMODE:      " + runmode + "      " at (5,10).
@@ -155,4 +134,3 @@ until runmode = 0 {
     
     wait 0.01.
 }
-	

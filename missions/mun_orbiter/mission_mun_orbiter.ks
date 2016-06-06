@@ -7,6 +7,7 @@ set tgt_direction to 90.
 // LAUNCH
 clearscreen.
 copy f_pid.ks from 0. run f_pid.
+copy f_autostage from 0. run once f_autostage.
 copy launch.ks from 0.
 run launch(75000, 200, tgt_direction).
 delete launch.ks from 1.
@@ -34,7 +35,7 @@ delete circularize.ks from 1.
 // WAIT FOR TRANSFER
 copy f_tgt.ks from 0. run f_tgt.ks.
 copy f_remap.ks from 0. run f_remap.ks.
-copy f_autostage from 0. run once f_autostage.
+
 
 clearscreen.
 print "Waiting for transfer...".

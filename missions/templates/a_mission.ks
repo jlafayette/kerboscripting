@@ -5,8 +5,8 @@
 // LAUNCH
 clearscreen.
 copy f_pid.ks from 0. run f_pid.
+copy f_autostage from 0. run once f_autostage.
 copy launch.ks from 0.
-
 set tgt_direction to 90.
 run launch(75000, 200, tgt_direction).
 delete launch.ks from 1.
@@ -56,7 +56,7 @@ when ((ship:airspeed < 250) and (alt:radar < 1500)) then {
     print "Deploying parachutes.".
     stage.
 }
-until alt:radar < 500 {
+until ship:airspeed < .5 {
     print "ALT:RADAR: " + round(alt:radar, 2) + "    " at (5, 5).
     lock steering to ship:srfretrograde.
     wait 0.1.

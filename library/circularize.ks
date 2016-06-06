@@ -1,5 +1,5 @@
 // cicularizes orbit based on specified burn point.
-// requires f_pid
+// requires f_pid, f_autostage
 parameter tgt_direction.
 
 set burn_point to "apoapsis". //apoapsis or periapsis (periapsis seems broken currently)
@@ -92,25 +92,12 @@ until runmode = 0 {
         
     }
     // staging logic
-    if (maxthrust < (prevThrust - 10)) {
-        lock throttle to 0.
-        wait 1.
-        stage.
-        wait 1.
-        until (maxthrust > 0) {
-            stage.
-            wait 1.
-        }
-        
+    if autostage() {
         // to stop pid loop from freaking out
-        //set lastP to 0.
-        set lastTime to time:seconds. 
+        set lastTime to time:seconds.
         set totalP to 0.
-        
-        set prevThrust to maxthrust.
     }
-    set prevThrust to maxthrust.
-
+    
     lock throttle to tval.
     
     print "         RUNMODE: " + runmode + "      " at (5,12).
