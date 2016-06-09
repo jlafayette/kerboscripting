@@ -1,37 +1,16 @@
 // cicularizes orbit based on specified burn point.
-// requires f_pid, f_autostage
+// requires f_remap, f_autostage
 parameter tgt_direction.
 
-set burn_point to "apoapsis". //apoapsis or periapsis (periapsis seems broken currently)
 
-function eta_to_burn_point {
-    if burn_point = "apoapsis" { return eta:apoapsis. }
-    else { return eta:periapsis. }
-}
-
-function eta_to_opposite {
-    if burn_point = "apoapsis" { return eta:periapsis. }
-    else { return eta:apoapsis. }
-}
-
-function get_steering {
-    parameter pitch_offset.
-    if burn_point = "apoapsis" { return ship:prograde + R(0, pitch_offset, 0). }
-    else { return ship:retrograde + R(0, -pitch_offset, 0). }
-}
+copy f_remap.ks from 0. run f_remap.ks.
+copy f_autostage.ks from 0. run once f_autostage.
 
 
 local runmode to 1.
-local pid_initialized to false.
-set prevThrust to 0.
-
-// Initialized here because the staging logic needs to access
-// the totalP and lastTime variables.
-init_pid(0.85, 0.5, 0.1).
-clearscreen.
 
 until runmode = 0 { 
-    
+    clearscreen.
     if runmode = 1 { // time warp to burn point (apoapsis or periapsis)
         lock steering to heading(tgt_direction, 0).
         set tval to 0.
@@ -51,24 +30,21 @@ until runmode = 0 {
         }
     }
     else if runmode = 2 { // burn to raise periapsis
-        if pid_initialized = false {
-            set pid_initialized to true.
-            set startTime to time:seconds.
-            set tgt_pitch to 0.
-        }
-        
-        //first attempt at deadband.
-        
-        if (verticalspeed > 0.1) or (verticalspeed < -.1) {
-            set tgt_pitch to pid_loop(0, verticalspeed).
-            print " tgt_pitch (raw): " + round(tgt_pitch,2) + "      " at (5, 10).
-            set tgt_pitch to max(0, min(tgt_pitch, 15)).
-            print "       tgt_pitch: " + round(tgt_pitch,2) + "      " at (5, 11).
-        }
-        
-        lock steering to heading(tgt_direction, tgt_pitch).
         
         set p to ship:obt:period.
+        
+        // drive pitch based on time to apoapsis
+        if eta:apoapsis < p/2 {
+            set ap_eta to eta:apoapsis.
+        } else {
+            set ap_eta to eta:apoapsis - p.
+        }
+        set tgt_pitch to remap(ap_eta, 5, -5, -5, 15).
+        lock steering to heading(tgt_direction, tgt_pitch).
+        
+        print "eta:apoapsis: " + round(eta:apoapsis,2) at (5, 1).
+        print "      ap_eta: " + round(ap_eta,2) at (5, 2).
+        print "   tgt_pitch: " + round(tgt_pitch,2) at (5, 3).
         
         // keep thrusting at full if eccentricity is not close to zero.
         if ship:obt:eccentricity > 0.025 {
@@ -92,11 +68,7 @@ until runmode = 0 {
         
     }
     // staging logic
-    if autostage() {
-        // to stop pid loop from freaking out
-        set lastTime to time:seconds.
-        set totalP to 0.
-    }
+    autostage().
     
     lock throttle to tval.
     

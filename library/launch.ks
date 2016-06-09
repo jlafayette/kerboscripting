@@ -7,6 +7,10 @@ parameter init_up_distance is 200.
 parameter target_direction is 90.
 
 
+copy f_pid.ks from 0. run f_pid.
+copy f_autostage.ks from 0. run once f_autostage.
+
+
 function get_terminal_velocity {
     local x to ship:altitude.
     return 99.292*constant():e^(9.728E-5*x).
