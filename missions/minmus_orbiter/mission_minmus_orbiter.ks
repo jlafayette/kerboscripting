@@ -1,16 +1,24 @@
-// MISSION: Orbit the Mun
+// Mission: Orbit around Minmus and return
+// Requires manual maneuver node creation for rendezvous with Minmus.
+// TODO: Move repeated code from Mun and Minmus missions into library.
+// TODO: Create time warp library.
 
-set ship:control:pilotmainthrottle to 0. wait 1.
-
-set tgt_direction to 90.
+// PRE-LAUNCH => wait til launch is roughly at ascending node of Minmus orbit
+print "Waiting for manual launch trigger.".
+print "Set RCS to on when ready...".
+rcs off.
+wait until rcs.
 
 // LAUNCH
 clearscreen.
 copy f_pid.ks from 0. run f_pid.
+copy f_remap.ks from 0. run f_remap.ks.
 copy f_autostage from 0. run once f_autostage.
 copy launch.ks from 0.
+set tgt_direction to 84.
 run launch(75000, 200, tgt_direction).
 delete launch.ks from 1.
+delete f_pid.ks from 1.
 
 // DEPLOY SOLAR PANELS
 panels on.
@@ -28,52 +36,37 @@ copy circularize.ks from 0.
 run circularize(tgt_direction).
 wait 1.
 clearscreen.
-delete f_pid.ks from 1.
 delete circularize.ks from 1.
 
 
-// WAIT FOR TRANSFER
-copy f_tgt.ks from 0. run f_tgt.ks.
-copy f_remap.ks from 0. run f_remap.ks.
-
-
-clearscreen.
-print "Waiting for transfer...".
-until close_enough(tgt_angle(Mun), 112, 2) {
-    print "DIFF:  "+round(tgt_angle(Mun),2)+"    " at (5, 5).
-    wait 1.
-} set warp to 0.
-
-// TRANSFER BURN - REFINE MUN PERIAPSIS
-// requires prev_thrust to be defined previously.
-set mun_tgt_altitude to 50000.
-
-clearscreen.
-print "Performing transfer burn to Mun...".
-lock steering to ship:prograde.
-wait 15.
-
-set prev_thrust to 0.
+// REQUIRES MANUAL MANEUVER NODE SETUP
+// This section runs maneuvers nodes set up by the player.
+// DANGER! If this runs without a maneuver node, it will error and stop the 
+// mission script.
+copy exe_nextnode.ks from 0.
+rcs off.
+lights off.
 until 0 {
-    if not ship:orbit:hasnextpatch {
-        set tval to remap(ship:obt:apoapsis, 12000000, 8000000, .2, 1).
-    } else {
-        set tval to .05.
-        if close_enough(ship:orbit:nextpatch:periapsis, mun_tgt_altitude, 5000) { 
-            break. 
-        }
+    if rcs {
+        run exe_nextnode.ks.
+        rcs off.
     }
-    autostage().
-    lock throttle to tval.
-    wait 0.01.
-} lock throttle to 0. unlock steering.
+    if lights {
+        break.
+    }
+    wait 2.
+}
+delete exe_nextnode.ks from 1.
+
+// Must be headed for Minmus SOI for the rest of the script to work.
 
 // WAIT
 clearscreen.
-print "Waiting to enter Mun SOI...".
-wait until ship:body = Mun. wait 10.
+print "Waiting to enter Minmus SOI...".
+wait until ship:body = Minmus. wait 30.
 
-// CIRCULARIZE AROUND MUN
+
+// CIRCULARIZE AROUND MINMUS
 clearscreen.
 print "Waiting for periapsis...".
 wait until eta:periapsis < 60.
@@ -96,10 +89,10 @@ until 0 {
     wait 0.01.
 } lock throttle to 0. unlock steering.
 
-// WAIT FOR TRANSFER
-// counterclockwise, exit on leading edge of Mun (after going around far side)
-// wait for farthest distance from Kerbin
-// wait for 1/4 obt period.
+
+// WAIT FOR RETURN TRANSFER POINT 
+// This has only been tested for Mun in orbit with 0 degrees inclination.
+// May not work depending on current orbit.
 clearscreen.
 print "Waiting until moving away from Kerbin...".
 until 0 {
@@ -116,23 +109,33 @@ until 0 {
 }
 clearscreen.
 print "Waiting for burn point...".
-wait ship:obt:period/4.
-set warp to 0.
+wait ship:obt:period/4 - 30.
+set warp to 0. wait 30.
 
-// TRANSFER BURN - REFINE KERBIN PERIAPSIS (38 km)
-// burn til next patch
-// wait til SOI changes to Kerbin
-// wait 1/16 orbit period
-// burn retrograde to lower kerbin periapsis to 38 km
+// ESCAPE MINMUS SOI
+clearscreen.
+print "Performing transfer burn...".
 lock steering to ship:prograde. wait 10.
 until ship:orbit:hasnextpatch {
     autostage().
     lock throttle to 1.
     wait 0.01.
 } lock throttle to 0. unlock steering.
-wait until ship:body = Kerbin.
-wait ship:obt:period/16. set warp to 0. wait 10.
+clearscreen.
+print "Waiting for escape for Minmus SOI...".
+wait until ship:body = Kerbin. set warp to 0. wait 30.
 
+
+// WAIT
+clearscreen.
+print "Waiting for burn point...".
+wait ship:obt:period/32. set warp to 0. wait 60.
+
+
+// BURN TO LOWER KERBIN PERIAPSIS
+// TODO: Check for Mun encounters.
+clearscreen.
+print "Burning to lower periapsis...".
 lock steering to retrograde. wait 10.
 until ship:obt:periapsis < 38000 {
     set tval to remap(ship:obt:periapsis, 38000, 250000, .05, 1).
@@ -141,13 +144,20 @@ until ship:obt:periapsis < 38000 {
     wait 0.01.
 } lock throttle to 0. unlock steering.
 
-// WAIT
+
+// WAIT FOR KERBIN APPROACH
+// TODO: Check body to make sure that this doesn't trigger on a Mun encounter.
+clearscreen.
+print "Waiting for Kerbin encounter...".
 wait until ship:altitude < 250000.
 set warp to 2.
 wait until ship:altitude < 100000.
 set warp to 0. wait 5.
 
-// BURN AT PERIAPSIS TIL PERIAPSIS < 30km or out of fuel
+
+// BURN OFF REMAINING FUEL AND STAGE
+clearscreen.
+print "Burrning off remaining fuel...".
 lock steering to ship:retrograde. wait 5.
 until 0 {
     if ship:obt:periapsis < 30000 { break. }
@@ -155,30 +165,22 @@ until 0 {
     lock throttle to 1.
     wait .01.
 } lock throttle to 0. unlock steering.
-
-
-// STAGE TIL PARACHUTES - REENTRY
 clearscreen.
 print "Preparing for re-entry.".
-lock steering to ship:prograde. wait 4.
-stage. wait 2.
+lock steering to ship:prograde. wait 8.
+stage. wait 5.
 
-print "Added drag chute trigger...".
-when ((ship:airspeed < 420) and (alt:radar < 2500)) then {
-    print "Deploying drag chutes.".
-    stage.
-}
 
+// REENTRY
 print "Added parachute trigger.".
-when ((ship:airspeed < 250) and (alt:radar < 1200)) then {
+when ((ship:airspeed < 250) and (alt:radar < 1500)) then {
     print "Deploying parachutes.".
     stage.
 }
-
 until ship:airspeed < .5 {
     print "ALT:RADAR: " + round(alt:radar, 2) + "    " at (5, 5).
     lock steering to ship:srfretrograde.
-    wait 0.1.
+    wait 0.5.
 }
 unlock steering.
 clearscreen.
