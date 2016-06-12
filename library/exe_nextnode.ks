@@ -1,6 +1,8 @@
 // Execute Next Manuver Node
 // Adapted from script http://ksp-kos.github.io/KOS_DOC/tutorials/exenode.html
 
+parameter autowarp is 0.
+
 copy f_remap.ks from 0. run f_remap.ks.
 copy f_autostage from 0. run once f_autostage.
 
@@ -16,7 +18,12 @@ set burn_duration to nd:deltav:mag/max_acc.
 print "Crude Estimated burn duration: " + round(burn_duration) + "s".
 
 print "Waiting for maneuver node.".
-wait until nd:eta <= (burn_duration/2 + 60).
+if autowarp { 
+    warpto(time:seconds + (nd:eta - (burn_duration/2 + 60))). 
+} else {
+    wait until nd:eta <= (burn_duration/2 + 60).
+}
+
 
 set np to nd:deltav. //points to node, don't care about the roll direction.
 lock steering to np.
