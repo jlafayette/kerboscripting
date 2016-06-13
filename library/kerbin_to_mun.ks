@@ -3,44 +3,84 @@
 
 parameter mun_tgt_altitude is 50000.
 
-// WAIT FOR TRANSFER
-copy f_tgt.ks from 0. run f_tgt.ks.
-copy f_remap.ks from 0. run f_remap.ks.
-copy f_autostage.ks from 0. run once f_autostage.ks.
+// CREATE TRANSFER MANEUVER USING CLIMB LIB
+copy hill_climb.ks from 0. run hill_climb.ks.
 
-
-clearscreen.
-print "Waiting for transfer...".
-until close_enough(tgt_angle(Mun), 112, 2) {
-    print "DIFF:  "+round(tgt_angle(Mun),2)+"    " at (5, 5).
-    if close_enough(tgt_angle(Mun), 112, 5) {
-        set warp to 2.
-    }
-    wait 1.
-} set warp to 0.
-
-// TRANSFER BURN - REFINE MUN PERIAPSIS
-clearscreen.
-print "Performing transfer burn to Mun...".
-lock steering to ship:prograde.
-wait 10.
-
-set prev_thrust to 0.
-until 0 {
-    if not ship:orbit:hasnextpatch {
-        set tval to remap(ship:obt:apoapsis, 12000000, 8000000, .2, 1).
-    } else {
-        set tval to .025.
-        if close_enough(ship:orbit:nextpatch:periapsis, mun_tgt_altitude, 1000) { 
-            break. 
-        } else if ship:orbit:nextpatch:periapsis < mun_tgt_altitude {
-            break.
+local tgt is Mun.
+local seekmode is 0.
+local result_node is lexicon().
+until seekmode = -1 {
+    if seekmode = 0 {
+        // with dv of 860, rough period finder
+        local offset is ship:obt:period/24.
+        local init_eta is 1000.
+        until 0 {
+            set result_node to climb_loop(tgt, -Mun:soiradius, eval_closest@, 
+                                          list(init_eta,0,0,860), list("eta"), 
+                                          ship:obt:period/10, 6).
+            // switch to 0.
+            // log "exit code: " + result_node["exit_code"] to "climb_data.txt".
+            // switch to 1.
+            if result_node["exit_code"] = 0 {
+                break.
+            }
+            set init_eta to init_eta + offset.
+            wait 0.01.
         }
+        set seekmode to 1.
+    } else if seekmode = 1 {
+        // refine period + dv
+        local init_list is init_list_from_node(result_node). // will only populate eta
+        set init_list[3] to 860.
+        set result_node to climb_loop(tgt, -tgt:radius, eval_closest@,
+                                      init_list, list("eta", "prograde"), 
+                                      5, 5).
+        set seekmode to 2.
+    } else if seekmode = 2 {
+        // correct orbit altitude.
+        local step_increment is 2.
+        local goal is -2000.
+        local init_list is init_list_from_node(result_node). // eta, prograde
+        until 0 {
+            set init_list to init_list_from_node(result_node).
+            set result_node to climb_loop(tgt, goal, eval_tgt_altitude@:bind(mun_tgt_altitude),
+                                          init_list, list("eta", "prograde"),
+                                          step_increment, 20).
+            if step_increment > .05 {
+                set step_increment to step_increment/2.
+            }
+            if goal < -500 {
+                set goal to goal/2.
+            }
+            // switch to 0.
+            // log "goal: " + goal to "climb_data.txt".
+            // log "eval: " + result_node["eval"] to "climb_data.txt".
+            // log "step: " + step_increment to "climb_data.txt".
+            // log "exit_code: " + result_node["exit_code"] to "climb_data.txt".
+            // switch to 1.
+            
+            if result_node["eval"] > -500 {
+                break. 
+            }
+            wait .01.
+        }
+        set seekmode to -1.
     }
-    autostage().
-    lock throttle to tval.
-    wait 0.01.
-} lock throttle to 0. unlock steering.
+    wait .01.
+}
+set nd to node(time:seconds + 100, 0, 0, 0).
+add nd.
+apply_data_to_maneuver_node(result_node["data"], nd).
+print "Final data: " + result_node["data"].
+print "Done".
+delete hill_climb.ks from 1.
+
+
+// EXECUTE MANEUVER NODE
+copy exe_nextnode.ks from 0.
+run exe_nextnode(1).
+delete exe_nextnode.ks from 1.
+
 
 clearscreen.
 print "Waiting to enter Mun SOI...".
@@ -48,7 +88,7 @@ wait until ship:body = Mun. set warp to 0. wait 10.
 
 // WAIT FOR MUN PERIAPSIS
 clearscreen.
-print "Waiting for periapsis...".
+print "Waiting for Mun periapsis...".
 lights off.
 until 0 {
     if lights {
