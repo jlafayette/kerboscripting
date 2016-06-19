@@ -18,11 +18,11 @@ set burn_duration to nd:deltav:mag/max_acc.
 print "Crude Estimated burn duration: " + round(burn_duration) + "s".
 
 print "Waiting for maneuver node.".
-if autowarp { 
+if autowarp {
     warpto(time:seconds + (nd:eta - (burn_duration/2 + 60))). 
-} else {
-    wait until nd:eta <= (burn_duration/2 + 60).
 }
+wait until nd:eta <= (burn_duration/2 + 60).
+
 
 
 set np to nd:deltav. //points to node, don't care about the roll direction.

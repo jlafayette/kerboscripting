@@ -1,3 +1,9 @@
+// NOTE: Staging during this process is fatal if the next stage has less 
+//       max accelation than the initial one. 
+
+parameter distance_buffer is 50.
+parameter stage_mult is 1.
+
 copy f_autostage.ks from 0. run once f_autostage.ks.
 copy f_remap.ks from 0. run f_remap.ks.
 
@@ -23,7 +29,7 @@ gear on.
 clearscreen.
 until 0 {
     set max_acc to ship:maxthrust/ship:mass.
-    set burn_duration to abs(ship:verticalspeed/max_acc).
+    set burn_duration to abs(ship:airspeed/(max_acc*stage_mult)).
     set tti to time_to_impact(50).
     set diff to tti - burn_duration.
     
@@ -37,13 +43,14 @@ until 0 {
     
     if ship:verticalspeed > -5 {
         set tval to 0.
-    } else if time_to_impact(50) <= burn_duration {
+    } else if time_to_impact(distance_buffer) <= burn_duration {
         set tval to remap(diff, 1, -1, .1, 1).
     } else {
         set tval to 0.
     }
-    
-    autostage().
+    if autostage() {
+        set stage_mult to 1.
+    }
     lock throttle to tval.
     wait 0.01.
 }
