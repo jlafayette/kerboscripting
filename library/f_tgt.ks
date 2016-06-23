@@ -1,3 +1,9 @@
+// Copied from Kevin Gisi with some minor modifications.
+// Project: ksprogramming https://github.com/gisikw/ksprogramming
+// Copyright (c) 2015 Kevin Gisi
+// License (MIT) https://github.com/gisikw/ksprogramming/blob/master/license.txt
+
+
 function lng_to_deg {
     parameter lng.
     return mod(lng + 360, 360).

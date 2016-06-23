@@ -1,19 +1,21 @@
 // Execute Next Manuver Node
-// Adapted from script http://ksp-kos.github.io/KOS_DOC/tutorials/exenode.html
+
+// Adapted from tutorial script by the kOS Team.
+// Link: http://ksp-kos.github.io/KOS_DOC/tutorials/exenode.html
+// Copyright (c) 2013-2016 kOS Team
+// License (GNU) http://ksp-kos.github.io/KOS_DOC/copyright.html
 
 parameter autowarp is 0.
+
 
 copy f_remap.ks from 0. run f_remap.ks.
 copy f_autostage from 0. run once f_autostage.
 
+
 set nd to nextnode.
 print "Node in: " + round(nd:eta) + ", DeltaV: " + round(nd:deltav:mag).
 
-//calculate ship's max acceleration
 set max_acc to ship:maxthrust/ship:mass.
-
-// Now we just need to divide deltav:mag by our ship's max acceleration
-// to get the estimated time of the burn.
 set burn_duration to nd:deltav:mag/max_acc.
 print "Crude Estimated burn duration: " + round(burn_duration) + "s".
 
@@ -23,14 +25,12 @@ if autowarp {
 }
 wait until nd:eta <= (burn_duration/2 + 60).
 
-
-
-set np to nd:deltav. //points to node, don't care about the roll direction.
+set np to nd:deltav. //points to node, ignoring roll direction.
 lock steering to np.
 
 print "Waiting for alignment.".
-wait until abs(np:direction:pitch - facing:pitch) < 0.15 and 
-           abs(np:direction:yaw - facing:yaw) < 0.15.
+wait until abs(np:direction:pitch - facing:pitch) < 0.3 and 
+           abs(np:direction:yaw - facing:yaw) < 0.3.
 
 print "Alignment completed, waiting for burn time.".
 wait until nd:eta <= (burn_duration/2).
@@ -53,7 +53,5 @@ until 0 {
 print "End burn, remaining dv " + round(nd:deltav:mag,1) + 
       "m/s, vdot: " + round(vdot(dv0, nd:deltav),1).
 
-//delete the maneuver node
 remove nd.
-
 set ship:control:pilotmainthrottle to 0.
