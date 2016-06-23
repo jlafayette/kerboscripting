@@ -1,5 +1,7 @@
-// NOTE: Staging during this process is fatal if the next stage has less 
-//       max accelation than the initial one. 
+// NOTE: If staging is expected during the powered landing, and the first stage
+//       has more max accelation than the next one, the stage_mult parameter
+//       should be passed in to prevent exploding. You can use KER thrust to
+//       weight ratio of each stage to calculate this.
 
 parameter distance_buffer is 50.
 parameter stage_mult is 1.
@@ -9,14 +11,14 @@ copy f_remap.ks from 0. run f_remap.ks.
 
 // FUNCTIONS
 function time_to_impact {
-    // This function is copied from Kevin Gisi
+    // This function is copied from Kevin Gisi with modifications
     // Project: ksprogramming https://github.com/gisikw/ksprogramming
     // Copyright (c) 2015 Kevin Gisi
     // License (MIT) https://github.com/gisikw/ksprogramming/blob/master/license.txt
     parameter buffer.
 
     local d is alt:radar - buffer.
-    if d <= 0 { set d to .001. }
+    set d to max(0, d).                 // Errors if d is negative. 
     local v is -ship:verticalspeed.
     local g is ship:body:mu / ship:body:radius^2.
 
@@ -29,6 +31,7 @@ gear on.
 clearscreen.
 until 0 {
     set max_acc to ship:maxthrust/ship:mass.
+    if max_acc <= 0 { set max_acc to .001. }
     set burn_duration to abs(ship:airspeed/(max_acc*stage_mult)).
     set tti to time_to_impact(50).
     set diff to tti - burn_duration.
@@ -55,7 +58,8 @@ until 0 {
     wait 0.01.
 }
 lock throttle to 0.
-unlock steering.
+lock steering to up.
+set ship:control:pilotmainthrottle to 0.
 clearscreen.
 print "you have landed!".
 

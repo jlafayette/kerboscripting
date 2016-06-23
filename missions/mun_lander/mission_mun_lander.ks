@@ -1,10 +1,8 @@
 // Mission: Land on the Mun!
-// DV requirements
-// 3200, 860, 310, 580, 580, 310, 440 => 6280
-// stage 1: 2600-3000                                                   2800
-// stage 2: RE + 860 + 310 + 200-400 (stage during powered landing)     1870
-// stage 3: RE(580) + 580 + 310 + 440                                   1610
-// stage 4: 0
+// DV requirements => 6900
+// If staging during powered landing, must set a stage max thrust multiplyer
+// as second parameter for the powered_landing script.
+
 
 // LAUNCH
 clearscreen.
