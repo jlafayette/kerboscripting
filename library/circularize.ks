@@ -1,5 +1,6 @@
-// cicularizes orbit based on specified burn point.
-// requires f_remap, f_autostage
+// CIRCULARIZE ORBIT
+// This is meant to be executed directly following the launch script. It is only
+// designed to work for circularizing around kerbin after launching.
 parameter tgt_direction.
 
 
@@ -7,26 +8,22 @@ copy f_remap.ks from 0. run f_remap.ks.
 copy f_autostage.ks from 0. run once f_autostage.
 
 
-local runmode to 1.
+local runmode is 1.
+local tval is 0.
 
 until runmode = 0 { 
     clearscreen.
-    if runmode = 1 { // time warp to burn point (apoapsis or periapsis)
+    if runmode = 1 { // time warp to apoapsis
         lock steering to heading(tgt_direction, 0).
         set tval to 0.
         
         if (eta:apoapsis > 20)  {
-            if warp = 0 {
-                wait 1.
-                set warp to 3.
-            }
+            warpto(time:seconds + (eta:apoapsis - 20)).
         }
-        else if eta:apoapsis < 20 {
-            set warp to 0.
-            lock steering to heading(tgt_direction, 0).
-            if eta:apoapsis < 5 {
-                set runmode to 2.
-            }
+        lock steering to heading(tgt_direction, 0).
+        
+        if eta:apoapsis < 5 {
+            set runmode to 2.
         }
     }
     else if runmode = 2 { // burn to raise periapsis
@@ -67,7 +64,6 @@ until runmode = 0 {
         }
         
     }
-    // staging logic
     autostage().
     
     lock throttle to tval.
