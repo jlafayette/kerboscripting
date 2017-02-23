@@ -1,6 +1,6 @@
 parameter vessel_name.
 
-copy f_remap.ks from 0. run f_remap.ks.
+copypath("0:/f_remap.ks", "1:/"). runpath("1:/f_remap.ks").
 
 set tgt_ves to vessel(vessel_name).
 

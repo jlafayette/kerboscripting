@@ -4,8 +4,8 @@
 parameter tgt_direction.
 
 
-copy f_remap.ks from 0. run f_remap.ks.
-copy f_autostage.ks from 0. run once f_autostage.
+copypath("0:/f_remap.ks", "1:/"). runpath("1:/f_remap.ks").
+copypath("0:/f_autostage.ks", "1:/"). runpath("1:/f_autostage.ks").
 
 
 local runmode is 1.

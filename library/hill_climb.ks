@@ -8,7 +8,7 @@ function climb_loop {
     parameter step_size.
     parameter max_iterations.
     
-    set maneuver_node to node(init_data[0], init_data[1], init_data[2], init_data[3]).
+    set maneuver_node to node(time:seconds + init_data[0], init_data[1], init_data[2], init_data[3]).
     add maneuver_node.
     
     local current_node is node_from_input_data(init_data, seek_data).

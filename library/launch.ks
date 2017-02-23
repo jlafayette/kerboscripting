@@ -5,9 +5,8 @@ parameter target_altitude.
 parameter init_up_distance is 200.
 parameter target_direction is 90.
 
-
-copy f_pid.ks from 0. run f_pid.
-copy f_autostage.ks from 0. run once f_autostage.
+copypath("0:/f_pid.ks", "1:/"). runpath("f_pid.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 
 function get_terminal_velocity {

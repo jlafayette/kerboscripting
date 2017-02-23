@@ -5,7 +5,7 @@ set ship:control:pilotmainthrottle to 0. wait 1.
 set tgt_direction to 90.
 
 // WAIT FOR TARGET
-copy f_tgt.ks from 0. run f_tgt. // lng_to_deg, tgt_angle, close_enough
+copypath("0:/f_tgt.ks", "1:/"). runpath("f_tgt.ks"). // lng_to_deg, tgt_angle, close_enough
 set tgt_name to "Natagy's Heap".
 set tgt_ves to vessel(tgt_name).
 
@@ -20,16 +20,16 @@ until 0 {
     }
 }
 set warp to 0. wait 7.
-delete f_tgt from 1.
+deletepath("1:/f_tgt.ks").
 
 // LAUNCH
 clearscreen.
-copy f_pid.ks from 0. run f_pid.
-copy f_autostage from 0. run once f_autostage.
-copy launch.ks from 0.
+copypath("0:/f_pid.ks", "1:/"). runpath("1:/f_pid.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
+copypath("0:/launch.ks", "1:/").
 // TODO: get tgt vessel altitude 30 in the future at the approx meeting point.
-run launch((tgt_ves:altitude), 200, tgt_direction).
-delete launch.ks from 1.
+runpath("launch.ks", tgt_ves:altitude, 200, tgt_direction).
+deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
 panels on.
@@ -43,17 +43,17 @@ if antenna_list:length > 0 {
 }
 
 // CIRCULARIZE
-copy circularize.ks from 0.
-run circularize(tgt_direction).
+copypath("0:/circularize.ks", "1:/").
+runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-delete f_pid.ks from 1.
-delete circularize.ks from 1.
+deletepath("1:/f_pid.ks").
+deletepath("1:/circularize.ks").
 
 
 // DOWNLOAD RENDEZVOUS LIB
-copy f_remap.ks from 0. run f_remap.ks.
-copy f_tgt.ks from 0. run f_tgt.ks.
+copypath("0:/f_remap.ks", "1:/"). runpath("1:/f_remap.ks").
+copypath("0:/f_tgt.ks", "1:/"). runpath("1:/f_tgt.ks").
 
 
 // RENDEZVOUS FUNCTIONS
@@ -109,9 +109,9 @@ if tgt_ves:distance > approach_range {
 }
 
 // APPROACH
-copy approach.ks from 0.
-run approach(tgt_name).
-delete approach.ks from 1.
+copypath("0:/approach.ks", "1:/").
+runpath("approach.ks", tgt_name).
+deletepath("1:/approach.ks").
 
 
 // WAIT UNTIL CREW IS ABOARD
@@ -126,9 +126,9 @@ until 0 {
 clearscreen.
 print "Deorbiting...".
 wait 10.
-copy deorbit from 0.
-run deorbit.
-delete deorbit from 1.
+copypath("0:/deorbit.ks", "1:/").
+runpath("deorbit.ks").
+deletepath("1:/deorbit.ks").
 
 
 // REENTRY
