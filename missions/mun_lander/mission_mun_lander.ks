@@ -6,27 +6,27 @@
 
 // LAUNCH
 clearscreen.
-copy launch.ks from 0.
+copypath("0:/launch.ks", "1:/").
 set tgt_direction to 90.
-run launch(80000, 200, tgt_direction).
-delete launch.ks from 1.
-delete f_pid.ks from 1.
+runpath("launch.ks", 80000, 200, tgt_direction).
+deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
 panels on.
 
 // CIRCULARIZE
-copy circularize.ks from 0.
-run circularize(tgt_direction).
+copypath("0:/circularize.ks", "1:/").
+runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-delete circularize.ks from 1.
+deletepath("1:/f_pid.ks").
+deletepath("1:/circularize.ks").
 
 // TO THE MUN!
 clearscreen.
-copy kerbin_to_mun.ks from 0.
-run kerbin_to_mun(25000).
-delete kerbin_to_mun.ks from 1.
+copypath("0:/kerbin_to_mun.ks", "1:/").
+runpath("kerbin_to_mun.ks", 25000).
+deletepath("1:/kerbin_to_mun.ks").
 
 // WAIT FOR DEORBIT SIGNAL
 print "Press the large red button to deorbit for Mun landing.".
@@ -37,7 +37,7 @@ until 0 {
 }
 
 // DEORBIT
-copy f_autostage.ks from 0. run f_autostage.ks.
+copypath("0:/f_autostage.ks", "1:/"). runpath("f_autostage.ks").
 lock steering to ship:retrograde. wait 10.
 until ship:obt:periapsis < -Mun:radius/4 {
     lock throttle to 1.
@@ -52,9 +52,9 @@ until ship:obt:periapsis < -Mun:radius/4 {
 // }
 
 // POWERED LANDING
-copy powered_landing.ks from 0.
-run powered_landing(100, .47).
-delete powered_landing.ks from 1.
+copypath("0:/powered_landing.ks", "1:/").
+runpath("powered_landing.ks", 100, .47).
+deletepath("1:/powered_landing.ks").
 
 // WAIT FOR TAKEOFF SIGNAL
 print "Engage RCS to takeoff.".
@@ -67,16 +67,16 @@ until 0 {
 
 // TAKEOFF AND CIRCULARIZE
 clearscreen.
-copy launch_noat.ks from 0.
-run launch_noat(25000).
-delete launch_noat.ks from 1.
+copypath("0:/launch_noat.ks", "1:/").
+runpath("launch_noat.ks", 25000).
+deletepath("1:/launch_noat.ks").
 
 
 // BACK TO KERBIN
 clearscreen.
-copy mun_to_kerbin.ks from 0.
-run mun_to_kerbin(38000).
-delete mun_to_kerbin.ks from 1.
+copypath("0:/mun_to_kerbin.ks", "1:/").
+runpath("mun_to_kerbin.ks", 38000).
+deletepath("1:/mun_to_kerbin.ks").
 
 
 // WAIT
@@ -117,5 +117,3 @@ until ship:airspeed < .5 {
 unlock steering.
 clearscreen.
 print "Finished mission script.".
-
-

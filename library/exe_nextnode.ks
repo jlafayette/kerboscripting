@@ -8,8 +8,8 @@
 parameter autowarp is 0.
 
 
-copy f_remap.ks from 0. run f_remap.ks.
-copy f_autostage from 0. run once f_autostage.
+copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 
 set nd to nextnode.

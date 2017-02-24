@@ -6,8 +6,8 @@
 parameter distance_buffer is 50.
 parameter stage_mult is 1.
 
-copy f_autostage.ks from 0. run once f_autostage.ks.
-copy f_remap.ks from 0. run f_remap.ks.
+copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 // FUNCTIONS
 function time_to_impact {

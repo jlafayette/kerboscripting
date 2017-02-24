@@ -3,8 +3,8 @@
 parameter target_altitude.
 parameter target_direction is 90.
 
-copy f_remap.ks from 0. run f_remap.
-copy f_autostage.ks from 0. run once f_autostage.
+copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 // Set basic config
 sas off.
@@ -86,6 +86,6 @@ until runmode = 0 {
 }
 
 // EXECUTE MANEUVER NODE
-copy exe_nextnode.ks from 0.
-run exe_nextnode(1).
-delete exe_nextnode.ks from 1.
+copypath("0:/exe_nextnode.ks", "1:/").
+runpath("exe_nextnode.ks", 1).
+deletepath("1:/exe_nextnode.ks").

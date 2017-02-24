@@ -6,11 +6,11 @@ set tgt_direction to 90.
 
 // LAUNCH
 clearscreen.
-copy f_pid.ks from 0. run f_pid.
-copy f_autostage from 0. run once f_autostage.
-copy launch.ks from 0.
-run launch(75000, 200, tgt_direction).
-delete launch.ks from 1.
+copypath("0:/f_pid.ks", "1:/"). runpath("f_pid.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
+copypath("0:/launch.ks", "1:/").
+runpath("launch.ks", 75000, 200, tgt_direction).
+deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
 panels on.
@@ -24,18 +24,17 @@ if antenna_list:length > 0 {
 }
 
 // CIRCULARIZE
-copy circularize.ks from 0.
-run circularize(tgt_direction).
+copypath("0:/circularize.ks", "1:/").
+runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-delete f_pid.ks from 1.
-delete circularize.ks from 1.
+deletepath("1:/f_pid.ks").
+deletepath("1:/circularize.ks").
 
 
 // WAIT FOR TRANSFER
-copy f_tgt.ks from 0. run f_tgt.ks.
-copy f_remap.ks from 0. run f_remap.ks.
-
+copypath("0:/f_tgt.ks", "1:/"). runpath("f_tgt.ks").
+copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
 
 clearscreen.
 print "Waiting for transfer...".

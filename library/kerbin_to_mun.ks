@@ -4,7 +4,7 @@
 parameter mun_tgt_altitude is 50000.
 
 // CREATE TRANSFER MANEUVER USING CLIMB LIB
-copy hill_climb.ks from 0. run hill_climb.ks.
+copypath("0:/hill_climb.ks", "1:/"). runpath("hill_climb.ks").
 
 local tgt is Mun.
 local seekmode is 0.
@@ -73,13 +73,13 @@ add nd.
 apply_data_to_maneuver_node(result_node["data"], nd).
 print "Final data: " + result_node["data"].
 print "Done".
-delete hill_climb.ks from 1.
+deletepath("1:/hill_climb.ks").
 
 
 // EXECUTE MANEUVER NODE
-copy exe_nextnode.ks from 0.
-run exe_nextnode(1).
-delete exe_nextnode.ks from 1.
+copypath("0:/exe_nextnode.ks", "1:/").
+runpath("exe_nextnode.ks", 1).
+deletepath("1:/exe_nextnode.ks").
 
 
 clearscreen.

@@ -26,21 +26,22 @@ until 0 {
 }
 
 // DETERMINE MANEUVER ETA
-copy f_bisection_search.ks from 0. run f_bisection_search.ks.
+copypath("0:/f_bisection_search.ks", "1:/").
+runpath("1:/f_bisection_search.ks").
 
 // This sets the eta on maneuver node during test function.
 bisection_search(0, ship:obt:period,           // min, max
                 1000, 100,                     // tolerence, max iterations
                 periapsis_at_time@:bind(nd)).  // test function
-delete f_bisection_search.ks from 1.
+deletepath("1:/f_bisection_search.ks").
 
 if nd:eta < 180 {
     set nd:eta to nd:eta + ship:obt:period.
 }
 
 // EXECUTE MANEUVER NODE
-copy exe_nextnode.ks from 0.
-run exe_nextnode(1).
+copypath("0:/exe_nextnode.ks", "1:/").
+runpath("exe_nextnode.ks", 1).
 
 clearscreen.
 print "Waiting to leave Mun SOI...".
@@ -61,5 +62,5 @@ until 0 {
 }
 
 // EXECUTE MANEUVER NODE
-run exe_nextnode(1).
-delete exe_nextnode.ks from 1.
+runpath("exe_nextnode.ks", 1).
+deletepath("1:/exe_nextnode.ks").

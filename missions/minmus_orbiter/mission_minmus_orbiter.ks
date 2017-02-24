@@ -11,14 +11,14 @@ wait until rcs.
 
 // LAUNCH
 clearscreen.
-copy f_pid.ks from 0. run f_pid.
-copy f_remap.ks from 0. run f_remap.ks.
-copy f_autostage from 0. run once f_autostage.
-copy launch.ks from 0.
+copypath("0:/f_pid.ks", "1:/"). runpath("f_pid.ks").
+copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
+copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
+copypath("0:/launch.ks", "1:/").
 set tgt_direction to 84.
-run launch(75000, 200, tgt_direction).
-delete launch.ks from 1.
-delete f_pid.ks from 1.
+runpath("launch.ks", 75000, 200, tgt_direction).
+deletepath("1:/launch.ks").
+deletepath("1:/f_pid.ks").
 
 // DEPLOY SOLAR PANELS
 panels on.
@@ -32,23 +32,23 @@ if antenna_list:length > 0 {
 }
 
 // CIRCULARIZE
-copy circularize.ks from 0.
-run circularize(tgt_direction).
+copypath("0:/circularize.ks", "1:/").
+runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-delete circularize.ks from 1.
+deletepath("1:/circularize.ks").
 
 
 // REQUIRES MANUAL MANEUVER NODE SETUP
 // This section runs maneuvers nodes set up by the player.
 // DANGER! If this runs without a maneuver node, it will error and stop the 
 // mission script.
-copy exe_nextnode.ks from 0.
+copypath("0:/exe_nextnode.ks", "1:/").
 rcs off.
 lights off.
 until 0 {
     if rcs {
-        run exe_nextnode.ks.
+        runpath("exe_nextnode.ks").
         rcs off.
     }
     if lights {
@@ -56,7 +56,7 @@ until 0 {
     }
     wait 2.
 }
-delete exe_nextnode.ks from 1.
+deletepath("1:/exe_nextnode.ks").
 
 // Must be headed for Minmus SOI for the rest of the script to work.
 
