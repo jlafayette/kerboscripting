@@ -6,7 +6,6 @@ set tgt_direction to 90.
 
 // LAUNCH
 clearscreen.
-copypath("0:/f_pid.ks", "1:/"). runpath("f_pid.ks").
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 copypath("0:/launch.ks", "1:/").
 runpath("launch.ks", 75000, 200, tgt_direction).
@@ -28,7 +27,6 @@ copypath("0:/circularize.ks", "1:/").
 runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-deletepath("1:/f_pid.ks").
 deletepath("1:/circularize.ks").
 
 

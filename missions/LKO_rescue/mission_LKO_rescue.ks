@@ -24,7 +24,6 @@ deletepath("1:/f_tgt.ks").
 
 // LAUNCH
 clearscreen.
-copypath("0:/f_pid.ks", "1:/"). runpath("1:/f_pid.ks").
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 copypath("0:/launch.ks", "1:/").
 // TODO: get tgt vessel altitude 30 in the future at the approx meeting point.
@@ -47,7 +46,6 @@ copypath("0:/circularize.ks", "1:/").
 runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-deletepath("1:/f_pid.ks").
 deletepath("1:/circularize.ks").
 
 

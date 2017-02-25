@@ -19,7 +19,6 @@ copypath("0:/circularize.ks", "1:/").
 runpath("circularize.ks", tgt_direction).
 wait 1.
 clearscreen.
-deletepath("1:/f_pid.ks").
 deletepath("1:/circularize.ks").
 
 // TO THE MUN!

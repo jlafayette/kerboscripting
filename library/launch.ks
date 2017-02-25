@@ -5,9 +5,7 @@ parameter target_altitude.
 parameter init_up_distance is 200.
 parameter target_direction is 90.
 
-copypath("0:/f_pid.ks", "1:/"). runpath("f_pid.ks").
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
-
 
 function get_terminal_velocity {
     local x to ship:altitude.
@@ -62,9 +60,8 @@ until runmode = 0 {
         // PID loop for throttle until above main atmosphere
         if (ship:altitude < 38000) and (ship:obt:apoapsis < 0.99 * target_altitude) {
             if pid_initialized = false {
-                init_pid(.25, 0, 0).
+                set pid to pidloop(.25, 0, 0, 0, 1).
                 set pid_initialized to true.
-                set startTime to time:seconds.
             }
             set tgt_speed to get_terminal_velocity() * 1.1 + 50.
             
@@ -72,7 +69,8 @@ until runmode = 0 {
             print "      tgt_speed: " + round(tgt_speed,2) +               "      " at (0, 17).
             print "my termvelocity: " + round(get_terminal_velocity(),2) + "      " at (0, 18).
                         
-            set tval to pid_loop(tgt_speed, ship:airspeed).
+            set pid:setpoint to tgt_speed.
+            set tval to pid:update(time:seconds, ship:airspeed).
             print "tval (raw): " + round(tval,2) + "      " at (0, 7).
             set tval to max(0, min(1, tval)).
             print "      tval: " + round(tval,2) + "      " at (0, 8).
