@@ -1,9 +1,9 @@
 //handles launching and ends after clearing the atmosphere 70km
 
-
 parameter target_altitude.
 parameter init_up_distance is 200.
 parameter target_direction is 90.
+parameter acc_mult is 1.1.
 
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
@@ -63,12 +63,13 @@ until runmode = 0 {
                 set pid to pidloop(.25, 0, 0, 0, 1).
                 set pid_initialized to true.
             }
-            set tgt_speed to get_terminal_velocity() * 1.1 + 50.
+            set tgt_speed to get_terminal_velocity() * acc_mult + 50.
             
             
-            print "      tgt_speed: " + round(tgt_speed,2) +               "      " at (0, 17).
-            print "my termvelocity: " + round(get_terminal_velocity(),2) + "      " at (0, 18).
-                        
+            print "   tgt_speed: " + round(tgt_speed,2) +               "      " at (0, 17).
+            print "    airspeed: " + round(ship:airspeed,2) +           "      " at (0, 18).
+            print "termvelocity: " + round(get_terminal_velocity(),2) + "      " at (0, 19).
+
             set pid:setpoint to tgt_speed.
             set tval to pid:update(time:seconds, ship:airspeed).
             print "tval (raw): " + round(tval,2) + "      " at (0, 7).
@@ -81,7 +82,7 @@ until runmode = 0 {
             if ship:obt:apoapsis < 0.99 * target_altitude {
                 set tval to 1.
             }
-                
+
             // Reduce engine thrust to near zero as apoapsis nears target,
             // this prevents overshooting the target.
             else {
