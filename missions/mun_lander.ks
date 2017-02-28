@@ -28,27 +28,34 @@ runpath("kerbin_to_mun.ks", 25000).
 deletepath("1:/kerbin_to_mun.ks").
 
 // WAIT FOR DEORBIT SIGNAL
-print "Press the large red button to deorbit for Mun landing.".
-abort off.
+print "Turn on the lights to preview Mun deorbit trajectory.".
+lights off.
 until 0 {
-    if abort { break. }
+    if lights { break. }
     wait 1.
 }
 
-// DEORBIT
-copypath("0:/f_autostage.ks", "1:/"). runpath("f_autostage.ks").
-lock steering to ship:retrograde. wait 10.
-until ship:obt:periapsis < -Mun:radius/4 {
-    lock throttle to 1.
-    autostage().
+// CREATE DEORBIT MANEUVER
+set nd to node(time:seconds + 120, 0, 0, 0).
+add nd.
+until 0 {
+    set nd:prograde to nd:prograde - 1.
+    if nd:obt:periapsis < -ship:body:radius/4 { break. }
     wait .01.
-} unlock steering. lock throttle to 0. wait 1.
+}
 
-// // WAIT TIL COMING BACK DOWN
-// print "Waiting til ship is traveling down.".
-// until ship:verticalspeed < 0 {
-    // print "verticalspeed: " + round(ship:verticalspeed,2) + "     " at (5, 5).
-// }
+// UPDATE MANEUVER AND WAIT FOR CONFIRM SIGNAL.
+clearscreen.
+print "Turn on RCS to confirm Mun deorbit.".
+rcs off.
+until 0 {
+    if rcs { rcs off. break. }
+    set nd:eta to 120.
+    wait 0.5.
+}
+copypath("0:/exe_nextnode.ks", "1:/").
+runpath("exe_nextnode.ks", 1).
+deletepath("1:/exe_nextnode.ks").
 
 // POWERED LANDING
 copypath("0:/powered_landing.ks", "1:/").
@@ -63,13 +70,11 @@ until 0 {
     wait 1.
 }
 
-
 // TAKEOFF AND CIRCULARIZE
 clearscreen.
 copypath("0:/launch_noat.ks", "1:/").
 runpath("launch_noat.ks", 25000).
 deletepath("1:/launch_noat.ks").
-
 
 // BACK TO KERBIN
 clearscreen.
@@ -77,13 +82,11 @@ copypath("0:/mun_to_kerbin.ks", "1:/").
 runpath("mun_to_kerbin.ks", 38000).
 deletepath("1:/mun_to_kerbin.ks").
 
-
 // WAIT
 wait until ship:altitude < 300000.
 set warp to 2.
 wait until ship:altitude < 100000.
 set warp to 0. wait 5.
-
 
 // BURN OFF REMAINING FUEL AND STAGE
 clearscreen.
@@ -99,7 +102,6 @@ clearscreen.
 print "Preparing for re-entry.".
 lock steering to ship:prograde. wait 8.
 stage. wait 5.
-
 
 // RE-ENTRY
 when ship:altitude < 71000 then { panels off. }
