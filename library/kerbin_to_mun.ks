@@ -83,17 +83,20 @@ deletepath("1:/exe_nextnode.ks").
 
 
 clearscreen.
-print "Waiting to enter Mun SOI...".
-wait until ship:body = Mun. set warp to 0. wait 10.
+print "Waiting to enter Mun SOI... turn on lights to auto-warp".
+lights off.
+until 0 {
+    if ship:body = Mun { break. }
+    if lights { warpto(time:seconds + (ship:orbit:nextpatcheta)). }
+    wait 10.
+} set warp to 0.
 
 // WAIT FOR MUN PERIAPSIS
 clearscreen.
-print "Waiting for Mun periapsis...".
+print "Waiting for Mun periapsis... turn on lights to auto-warp".
 lights off.
 until 0 {
-    if lights {
-        warpto(time:seconds + (eta:periapsis - 60)).
-    }
+    if lights { warpto(time:seconds + (eta:periapsis - 60)). }
     if eta:periapsis < 60 { break. }
     wait 1.
 } set warp to 0.
