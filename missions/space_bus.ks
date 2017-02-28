@@ -1,4 +1,6 @@
 // Mission: Space Bus Tour LKO and Mun!
+parameter destination is "LKO".
+parameter autowarp is true.
 
 function mun_and_back {
     print "Next stop Mun!".
@@ -6,14 +8,12 @@ function mun_and_back {
     runpath("kerbin_to_mun.ks", 50000).
     deletepath("1:/kerbin_to_mun.ks").
 
-
     print "Press the large red button to return to Kerbin.".
     abort off.
     until 0 {
         if abort { break. }
         wait 1.
     }
-
     clearscreen.
     print "You are now returning to Kerbin...".
     copypath("0:/mun_to_kerbin.ks", "1:/").
@@ -37,6 +37,14 @@ deletepath("1:/launch.ks").
 // DEPLOY SOLAR PANELS
 panels on.
 
+// DEPLOY ANTENNA FOR COMMUNICATION
+set antenna_list to ship:partsdubbed("Communotron 16").
+if antenna_list:length > 0 {
+    set antenna to antenna_list[0].
+    antenna:getmodule("ModuleDeployableAntenna"):doevent("extend antenna").
+    wait 1.
+}
+
 // CIRCULARIZE
 copypath("0:/circularize.ks", "1:/").
 runpath("circularize.ks", tgt_direction).
@@ -48,14 +56,10 @@ deletepath("1:/circularize.ks").
 print "You are now in space.".
 
 // TO THE MUN?
-print "Press the large red button to return to Kerbin or turn on the lights to go to the Mun!".
-abort off.
-lights off.
-until 0 {
-    if abort { break. }
-    if lights { mun_and_back(). break. }
-    wait 1.
+if destination = "Mun" {
+    mun_and_back(). wait 1.
 }
+else { wait 60. }
 
 // BURN OFF REMAINING FUEL AND STAGE
 clearscreen.
@@ -71,7 +75,6 @@ clearscreen.
 print "Preparing for re-entry.".
 lock steering to ship:prograde. wait 8.
 stage. wait 5.
-
 
 // RE-ENTRY
 when ship:altitude < 71000 then { panels off. }
