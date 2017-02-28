@@ -1,14 +1,12 @@
-// Mission template
-// Launches and circularizes orbit around Kerbin.
-// Has section for deorbiting and re-entry.
+// Mission: TEMPLATE
+parameter autowarp is true.
 
 // LAUNCH
 clearscreen.
-copy f_autostage from 0. run once f_autostage.
-copy launch.ks from 0.
+copypath("0:/launch.ks", "1:/").
 set tgt_direction to 90.
-run launch(75000, 200, tgt_direction).
-delete launch.ks from 1.
+runpath("launch.ks", 80000, 200, tgt_direction).
+deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
 panels on.
@@ -17,16 +15,18 @@ panels on.
 set antenna_list to ship:partsdubbed("Communotron 16").
 if antenna_list:length > 0 {
     set antenna to antenna_list[0].
-    antenna:getmodule("ModuleAnimateGeneric"):doevent("extend").
+    antenna:getmodule("ModuleDeployableAntenna"):doevent("extend antenna").
     wait 1.
 }
 
 // CIRCULARIZE
-copy circularize.ks from 0.
-run circularize(tgt_direction).
-wait 1.
-clearscreen.
-delete circularize.ks from 1.
+copypath("0:/circularize.ks", "1:/").
+runpath("circularize.ks", tgt_direction).
+deletepath("1:/circularize.ks").
+wait 1. clearscreen.
+
+// IN ORBIT!
+print "You are now in space.".
 
 // DO MISSION HERE
 
@@ -39,25 +39,26 @@ delete circularize.ks from 1.
 clearscreen.
 print "Deorbiting...".
 wait 10.
-copy deorbit from 0.
-run deorbit.
-delete deorbit from 1.
+copypath("0:/deorbit.ks", "1:/").
+runpath("deorbit.ks").
+deletepath("1:/deorbit.ks").
 
 // REENTRY
 clearscreen.
 print "Preparing for re-entry.".
-lock steering to ship:prograde. wait 8.
+lock steering to ship:north. wait 8.
 stage. wait 5.
 
+when ship:altitude < 71000 then { panels off. }
 print "Added parachute trigger.".
-when ((ship:airspeed < 250) and (alt:radar < 1500)) then {
+when ((ship:airspeed < 250) and (alt:radar < 2000)) then {
     print "Deploying parachutes.".
     stage.
 }
 until ship:airspeed < .5 {
     print "ALT:RADAR: " + round(alt:radar, 2) + "    " at (5, 5).
     lock steering to ship:srfretrograde.
-    wait 0.1.
+    wait 0.5.
 }
 unlock steering.
 clearscreen.
