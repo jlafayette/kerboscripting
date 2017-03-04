@@ -15,12 +15,9 @@ deletepath("1:/launch.ks").
 panels on.
 
 // DEPLOY ANTENNA FOR COMMUNICATION
-set antenna_list to ship:partsdubbed("Communotron 16").
-if antenna_list:length > 0 {
-    set antenna to antenna_list[0].
-    antenna:getmodule("ModuleAnimateGeneric"):doevent("extend").
-    wait 1.
-}
+copypath("0:/extend_antenna.ks", "1:/").
+runpath("extend_antenna.ks", "Communotron 16").
+deletepath("1:/extend_antenna.ks").
 
 // CIRCULARIZE
 copypath("0:/circularize.ks", "1:/").

@@ -14,6 +14,11 @@ deletepath("1:/launch.ks").
 // DEPLOY SOLAR PANELS
 panels on.
 
+// DEPLOY ANTENNA FOR COMMUNICATION
+copypath("0:/extend_antenna.ks", "1:/").
+runpath("extend_antenna.ks", "Communotron 16").
+deletepath("1:/extend_antenna.ks").
+
 // CIRCULARIZE
 copypath("0:/circularize.ks", "1:/").
 runpath("circularize.ks", tgt_direction).
