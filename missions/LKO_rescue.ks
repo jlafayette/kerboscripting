@@ -27,7 +27,7 @@ clearscreen.
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 copypath("0:/launch.ks", "1:/").
 // TODO: get tgt vessel altitude 30 in the future at the approx meeting point.
-runpath("launch.ks", tgt_ves:altitude, 200, tgt_direction).
+runpath("launch.ks", tgt_ves:altitude, 200, tgt_direction, 1.5).
 deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
@@ -96,7 +96,16 @@ if tgt_ves:distance > approach_range {
     set end_time to time:seconds.
     set burn_time to start_time - end_time.
     
-    wait new_period - (60 + burn_time/2).
+    clearscreen.
+    print "Waiting for rendezvous".
+    set time_to_wait to new_period - (60 + burn_time/2).
+    set wait_start_time to time:seconds.
+    until 0 {
+        print "Time remaining: " + round((wait_start_time + time_to_wait) - time:seconds, 2) + "      " at (5, 3).
+        if (wait_start_time + time_to_wait) < time:seconds { break. }
+        wait 1.
+    }
+    //wait new_period - (60 + burn_time/2).
     set warp to 0.
     
     wait 40.
@@ -105,7 +114,7 @@ if tgt_ves:distance > approach_range {
 
 // APPROACH
 copypath("0:/approach.ks", "1:/").
-runpath("approach.ks", tgt_name).
+runpath("approach.ks", tgt_name, 100, V(0,0,0), 1.2).
 deletepath("1:/approach.ks").
 
 

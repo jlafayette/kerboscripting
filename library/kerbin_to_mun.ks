@@ -2,6 +2,7 @@
 // Assumes ship is in a circular LKO as a starting point.
 
 parameter mun_tgt_altitude is 50000.
+parameter autowarp is true.
 
 // CREATE TRANSFER MANEUVER USING CLIMB LIB
 copypath("0:/hill_climb.ks", "1:/"). runpath("hill_climb.ks").
@@ -87,16 +88,17 @@ print "Waiting to enter Mun SOI... turn on lights to auto-warp".
 lights off.
 until 0 {
     if ship:body = Mun { break. }
-    if lights { warpto(time:seconds + (ship:orbit:nextpatcheta)). }
+    if lights or autowarp { warpto(time:seconds + (ship:orbit:nextpatcheta)). break. }
     wait 10.
-} set warp to 0.
+} wait until ship:body = Mun.
+set warp to 0.
 
 // WAIT FOR MUN PERIAPSIS
 clearscreen.
 print "Waiting for Mun periapsis... turn on lights to auto-warp".
 lights off.
 until 0 {
-    if lights { warpto(time:seconds + (eta:periapsis - 60)). }
+    if lights or autowarp { lights off. (time:seconds + (eta:periapsis - 60)). }
     if eta:periapsis < 60 { break. }
     wait 1.
 } set warp to 0.

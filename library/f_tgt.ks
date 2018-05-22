@@ -20,6 +20,6 @@ function close_enough {
     parameter n1.
     parameter n2.
     parameter margin.
-    if abs(abs(n1) - abs(n2)) < margin { return 1. }
+    if abs(n1 - n2) < margin { return 1. }
     else { return 0. }
 }

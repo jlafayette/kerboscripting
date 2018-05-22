@@ -17,7 +17,7 @@ function mun_and_back {
     clearscreen.
     print "You are now returning to Kerbin...".
     copypath("0:/mun_to_kerbin.ks", "1:/").
-    runpath("mun_to_kerbin.ks", 38000).
+    runpath("mun_to_kerbin.ks", 38000, autowarp).
     deletepath("1:/mun_to_kerbin.ks").
 
     // WAIT
