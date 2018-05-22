@@ -116,7 +116,7 @@ until runmode = 0 {
         }
     }
     else if runmode = 6 { // end launch script
-        //set warp to 0.
+        set warp to 0.
         set tval to 0.
         unlock steering.
         set ship:control:pilotmainthrottle to 0.

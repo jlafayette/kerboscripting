@@ -64,7 +64,7 @@ deletepath("1:/exe_nextnode.ks").
 
 // POWERED LANDING
 copypath("0:/powered_landing.ks", "1:/").
-runpath("powered_landing.ks", 100, .47).
+runpath("powered_landing.ks", 200, .75).
 deletepath("1:/powered_landing.ks").
 
 // WAIT FOR TAKEOFF SIGNAL

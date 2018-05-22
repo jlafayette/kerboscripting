@@ -1,6 +1,7 @@
 // Escape Mun and fall back to Kerbin
 
 parameter kerbin_tgt_periapsis.
+parameter autowarp is true.
 
 // FUNCTIONS
 function periapsis_at_time {
@@ -45,6 +46,9 @@ runpath("exe_nextnode.ks", 1).
 
 clearscreen.
 print "Waiting to leave Mun SOI...".
+if autowarp {
+    warpto(time:seconds + ship:orbit:nextpatcheta).
+}
 wait until ship:body = Kerbin. set warp to 0. wait 10.
 
 
