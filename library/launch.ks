@@ -7,27 +7,9 @@ parameter target_direction is 90.
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 function get_tgt_speed {
-    // return 99.292*constant():e^(9.728E-5*x).
-    // local x to ship:altitude.
-    // local a to 147. local b to 1.00005. local c to 50. // 2385m/s
-    // local a to 205. local b to 1.00005. local c to 75. //2456m/s  2498m/s
-    // local a to 205. local b to 1.00005. local c to 50.
-    // local a to 190. local b to 1.000055. local c to 0.  //2483  2428
-    // local a to 230. local b to 1.00005. local c to 60.  //2497   //*
-    // local a to 340. local b to 1.00005. local c to -100.  //2497
-    // local a to 340. local b to 1.00005. local c to -100.  //
-    // return a*b^x + c. 
-    // local a is 0.0000006. local b is 0.025. local c is 190. //2432
-    // local a is 0.0000003. local b is 0.02. local c is 200. //2463
-    // return a*x^2 + b*x + c.
-
     local y to ship:altitude.
     local a to 1330. local b to 1.00002. local c to -1120.   // 2551 | X2758
     return a*b^y + c.
-    // local m to 0.0259282. local b to 184.722.   //2463
-    // local m to 0.0271586. local b to 301.   //2503!! 2594!! 2595 | X2758
-    // local m to 0.0339481. local b to 210.   //2469
-    // return m*y + b.
 }
 
 // Set basic config
