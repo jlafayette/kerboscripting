@@ -58,7 +58,7 @@ until runmode = 0 {
         lock steering to heading (target_direction, target_pitch).
         
         // PID loop for throttle until above main atmosphere
-        if (ship:altitude < 50000) and (ship:obt:apoapsis < 0.99 * target_altitude) {
+        if ship:obt:apoapsis < 0.99 * target_altitude {
             if pid_initialized = false {
                 set pid to pidloop(.25, 0, 0, 0, 1).
                 set pid_initialized to true.
@@ -75,25 +75,18 @@ until runmode = 0 {
             set tval to max(0, min(1, tval)).
             print "      tval: " + round(tval,2) + "      " at (0, 8).
         }
-        else {
-            set tval to 1.
-        
-            if ship:obt:apoapsis < 0.99 * target_altitude {
-                set tval to 1.
-            }
 
-            // Reduce engine thrust to near zero as apoapsis nears target,
-            // this prevents overshooting the target.
-            else {
-                set tval to max(.05, 
-                    (1.0 - (ship:obt:apoapsis-.99*target_altitude)/(.01*target_altitude))).
-            }
-        }    
+        // Reduce engine thrust to near zero as apoapsis nears target,
+        // this prevents overshooting the target.
+        else {
+            set tval to max(.05,
+                (1.0 - (ship:obt:apoapsis-.99*target_altitude)/(.01*target_altitude))).
+        } 
         if ship:obt:apoapsis > target_altitude {
             set runmode to 4.
         }
     }
-        
+
     else if runmode = 4 { // coast til almost out of atmosphere
         lock steering to ship:prograde.
         set tval to 0.
