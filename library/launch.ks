@@ -3,13 +3,31 @@
 parameter target_altitude.
 parameter init_up_distance is 200.
 parameter target_direction is 90.
-parameter acc_mult is 1.1.
 
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
-function get_terminal_velocity {
-    local x to ship:altitude.
-    return 99.292*constant():e^(9.728E-5*x).
+function get_tgt_speed {
+    // return 99.292*constant():e^(9.728E-5*x).
+    // local x to ship:altitude.
+    // local a to 147. local b to 1.00005. local c to 50. // 2385m/s
+    // local a to 205. local b to 1.00005. local c to 75. //2456m/s  2498m/s
+    // local a to 205. local b to 1.00005. local c to 50.
+    // local a to 190. local b to 1.000055. local c to 0.  //2483  2428
+    // local a to 230. local b to 1.00005. local c to 60.  //2497   //*
+    // local a to 340. local b to 1.00005. local c to -100.  //2497
+    // local a to 340. local b to 1.00005. local c to -100.  //
+    // return a*b^x + c. 
+    // local a is 0.0000006. local b is 0.025. local c is 190. //2432
+    // local a is 0.0000003. local b is 0.02. local c is 200. //2463
+    // return a*x^2 + b*x + c.
+
+    local y to ship:altitude.
+    local a to 1330. local b to 1.00002. local c to -1120.   // 2551 | X2758
+    return a*b^y + c.
+    // local m to 0.0259282. local b to 184.722.   //2463
+    // local m to 0.0271586. local b to 301.   //2503!! 2594!! 2595 | X2758
+    // local m to 0.0339481. local b to 210.   //2469
+    // return m*y + b.
 }
 
 // Set basic config
@@ -52,23 +70,22 @@ until runmode = 0 {
             set runmode to 3.
         }
     }
-        
+    
     else if runmode = 3 { // main ascent mode
-        set target_pitch to max(5, 90 * (1 - (alt:radar - init_up_distance) / 40000)).
+        set target_pitch to max(5, 90 * (1 - (alt:radar - init_up_distance) / (35000 + alt:radar*5/90))).
         lock steering to heading (target_direction, target_pitch).
         
         // PID loop for throttle until above main atmosphere
-        if (ship:altitude < 38000) and (ship:obt:apoapsis < 0.99 * target_altitude) {
+        if (ship:altitude < 50000) and (ship:obt:apoapsis < 0.99 * target_altitude) {
             if pid_initialized = false {
                 set pid to pidloop(.25, 0, 0, 0, 1).
                 set pid_initialized to true.
             }
-            set tgt_speed to get_terminal_velocity() * acc_mult + 50.
-            
+            set tgt_speed to get_tgt_speed().
             
             print "   tgt_speed: " + round(tgt_speed,2) +               "      " at (0, 17).
             print "    airspeed: " + round(ship:airspeed,2) +           "      " at (0, 18).
-            print "termvelocity: " + round(get_terminal_velocity(),2) + "      " at (0, 19).
+            print "     max acc: " + round(ship:maxthrust/ship:mass,2) +"      " at (0, 20).
 
             set pid:setpoint to tgt_speed.
             set tval to pid:update(time:seconds, ship:airspeed).
