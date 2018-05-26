@@ -12,6 +12,12 @@ function get_tgt_speed {
     return a*b^y + c.
 }
 
+function get_tgt_pitch {
+    local y to target_altitude - ship:obt:apoapsis.
+    local b to 3000. local m to 820.
+    return min(90, (y + b)/m).
+}
+
 // Set basic config
 sas off.
 rcs off.
@@ -28,7 +34,7 @@ gear off.
 // 0 --> terminates main loop
 set runmode to 1.
 
-set target_pitch to 90.
+set tgt_pitch to 90.
 set pid_initialized to false.
 
 until runmode = 0 {
@@ -43,7 +49,7 @@ until runmode = 0 {
         wait 1.
         clearscreen.
         stage.
-        lock steering to heading (target_direction, 90).
+        lock steering to heading (target_direction, tgt_pitch).
         set runmode to 2.
     }
     
@@ -54,8 +60,7 @@ until runmode = 0 {
     }
     
     else if runmode = 3 { // main ascent mode
-        set target_pitch to max(5, 90 * (1 - (alt:radar - init_up_distance) / (35000 + alt:radar*5/90))).
-        lock steering to heading (target_direction, target_pitch).
+        set tgt_pitch to get_tgt_pitch().
         
         // PID loop for throttle until above main atmosphere
         if ship:obt:apoapsis < 0.99 * target_altitude {
@@ -99,6 +104,7 @@ until runmode = 0 {
         lock steering to ship:prograde.
         if ship:obt:apoapsis < target_altitude {
             set tval to .05.
+            if eta:apoapsis < 45 { set tval to 1. }
         }
         else {
             set tval to 0.
@@ -118,12 +124,13 @@ until runmode = 0 {
     autostage(). // ascent staging logic
     lock throttle to tval.
     
-    print "RUNMODE:      " + runmode + "      " at (5,10).
-    print "ALTITUDE:     " + round(ship:altitude) + "      " at (5,11).
-    print "APOAPSIS:     " + round(ship:obt:apoapsis) + "      " at (5,12).
-    print "PERIAPSIS:    " + round(ship:obt:periapsis) + "      " at (5,13).
-    print "ETA to AP:    " + round(eta:apoapsis) + "      " at (5,14).
-    print "target_pitch: " + round(target_pitch,2) + "      " at (5,15).
+    print "   RUNMODE: " + runmode +                   "      " at (5,10).
+    print "  ALTITUDE: " + round(ship:altitude) +      "      " at (5,11).
+    print "  APOAPSIS: " + round(ship:obt:apoapsis) +  "      " at (5,12).
+    print " PERIAPSIS: " + round(ship:obt:periapsis) + "      " at (5,13).
+    print " ETA to AP: " + round(eta:apoapsis) +       "      " at (5,14).
+    print "pitch_calc: " + round(get_tgt_pitch(),2) +  "      " at (5,15).
+    print " tgt_pitch: " + round(tgt_pitch,2) +        "      " at (5,16).
     
     wait 0.01.
 }
