@@ -15,7 +15,7 @@ copypath("0:/f_remap.ks", "1:/"). runpath("f_remap.ks").
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 copypath("0:/launch.ks", "1:/").
 set tgt_direction to 84.
-runpath("launch.ks", 75000, 200, tgt_direction).
+runpath("launch.ks", 75000, tgt_direction).
 deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS

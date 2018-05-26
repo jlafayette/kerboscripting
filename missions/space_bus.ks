@@ -31,7 +31,7 @@ function mun_and_back {
 clearscreen.
 copypath("0:/launch.ks", "1:/").
 set tgt_direction to 90.
-runpath("launch.ks", 80000, 200, tgt_direction).
+runpath("launch.ks", 80000, tgt_direction).
 deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS

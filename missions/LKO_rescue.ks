@@ -27,7 +27,7 @@ clearscreen.
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 copypath("0:/launch.ks", "1:/").
 // TODO: get tgt vessel altitude 30 in the future at the approx meeting point.
-runpath("launch.ks", tgt_ves:altitude, 200, tgt_direction).
+runpath("launch.ks", tgt_ves:altitude, tgt_direction).
 deletepath("1:/launch.ks").
 
 // DEPLOY SOLAR PANELS
