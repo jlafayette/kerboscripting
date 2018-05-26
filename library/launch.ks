@@ -1,14 +1,13 @@
 //handles launching and ends after clearing the atmosphere 70km
 
 parameter target_altitude.
-parameter init_up_distance is 200.
 parameter target_direction is 90.
 
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
 function get_tgt_speed {
     local y to ship:altitude.
-    local a to 1330. local b to 1.00002. local c to -1120.   // 2551 | X2758
+    local a to 1330. local b to 1.00002. local c to -1120.
     return a*b^y + c.
 }
 
@@ -26,11 +25,10 @@ gear off.
 
 // Run Modes Breakdown
 // 1 --> on the launch pad
-// 2 --> go straight up
-// 3 --> main ascent mode
-// 4 --> coast til almost out of atmosphere (height of 65000)
-// 5 --> tweak apoapsis because air resistance will have lowered it during stage 4
-// 6 --> handles cleanup before switching to 0 and ending launch script
+// 2 --> main ascent mode
+// 3 --> coast til almost out of atmosphere (height of 65000)
+// 4 --> tweak apoapsis because air resistance will have lowered it during stage 4
+// 5 --> handles cleanup before switching to 0 and ending launch script
 // 0 --> terminates main loop
 set runmode to 1.
 
@@ -53,13 +51,7 @@ until runmode = 0 {
         set runmode to 2.
     }
     
-    else if runmode = 2 { //go straight up
-        if ship:altitude > init_up_distance {
-            set runmode to 3.
-        }
-    }
-    
-    else if runmode = 3 { // main ascent mode
+    else if runmode = 2 { // main ascent mode
         set tgt_pitch to get_tgt_pitch().
         
         // PID loop for throttle until above main atmosphere
@@ -88,19 +80,19 @@ until runmode = 0 {
                 (1.0 - (ship:obt:apoapsis-.99*target_altitude)/(.01*target_altitude))).
         } 
         if ship:obt:apoapsis > target_altitude {
-            set runmode to 4.
+            set runmode to 3.
         }
     }
 
-    else if runmode = 4 { // coast til almost out of atmosphere
+    else if runmode = 3 { // coast til almost out of atmosphere
         lock steering to ship:prograde.
         set tval to 0.
         if ship:altitude > 65000 {
-            set runmode to 5.
+            set runmode to 4.
         }
     }
         
-    else if runmode = 5 { // tweak apoapsis
+    else if runmode = 4 { // tweak apoapsis
         lock steering to ship:prograde.
         if ship:obt:apoapsis < target_altitude {
             set tval to .05.
@@ -109,11 +101,11 @@ until runmode = 0 {
         else {
             set tval to 0.
             if ship:altitude > 70000 {
-                set runmode to 6.
+                set runmode to 5.
             }
         }
     }
-    else if runmode = 6 { // end launch script
+    else if runmode = 5 { // end launch script
         set warp to 0.
         set tval to 0.
         unlock steering.
