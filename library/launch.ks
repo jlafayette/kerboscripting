@@ -5,15 +5,18 @@ parameter target_direction is 90.
 
 copypath("0:/f_autostage.ks", "1:/"). runoncepath("f_autostage.ks").
 
+// Get target speed in terms of altitude. This is meant to avoid too much air resistence.
 function get_tgt_speed {
     local y to ship:altitude.
     local a to 1330. local b to 1.00002. local c to -1120.
     return a*b^y + c.
 }
 
+// Get target pitch in terms of the difference between target altitude and current apoapsis.
 function get_tgt_pitch {
     local y to target_altitude - ship:obt:apoapsis.
-    local b to 3000. local m to 820.
+    local b to 3000. // Offset (intended to be altitude to go straight up)
+    local m to 780/(70000/target_altitude). // Scale the slope so it works with any tgt altitude.
     return min(90, (y + b)/m).
 }
 
