@@ -67,7 +67,6 @@ until 0 {
 set tval to 0.
 unlock steering.
 
-
 // WAIT UNTIL MUN SOI
 clearscreen.
 print "Waiting to enter Mun SOI...".
@@ -77,17 +76,16 @@ until 0 {
 }
 set warp to 0.
 wait until kuniverse:timewarp:issettled.
-// WAIT UNTIL KERBIN SOI
 clearscreen.
-print "You are now flying by the Mun, enjoy the view and gather science!".
+print "You are now flying by the Mun!". wait 3.
 
-// fix collision course
+// FIX COLLISION COURSE
 if ship:obt:periapsis < 10000 {
     print "Uh oh! You are on a collision course with the Mun.".
-    print "Please stand by while I fix this...".
+    print "Calculating alternate trajectory, please stand by...".
     lock normalV to vcrs(ship:velocity:orbit, -body:position).
     lock radialOutV to vcrs(ship:velocity:orbit, -normalV).
-    lock steering to radialOutV.
+    lock steering to radialOutV. wait 5.
     set tval to 1.
     until 0 {
         if ship:obt:periapsis > 10000 {
@@ -98,35 +96,41 @@ if ship:obt:periapsis < 10000 {
     set tval to 0.
     unlock steering.
     wait 1.
+    clearscreen.
+    print "Course correction completed.".
 }
 
+// WAIT UNTIL KERBIN SOI
 until 0 {
     if ship:body = Kerbin { break. }
-    wait 10.
 }
-
-// wait for awhile
 set warp to 0. wait until kuniverse:timewarp:issettled.
-warpto(time:seconds + 20000).
+
+// WAIT FOR APOAPSIS
+clearscreen. print "Waiting for apoapsis...".
+warpto(time:seconds + eta:apoapsis).
 set warp to 0. wait until kuniverse:timewarp:issettled.
 
 // TRANSFER BURN - REFINE KERBIN PERIAPSIS (35 km)
 // burn retrograde to lower kerbin periapsis to 35 km
+clearscreen. print "Burning to lower Kerbin periapsis.".
 lock steering to retrograde. wait 10.
-until ship:obt:periapsis < 35000 {
-    set tval to remap(ship:obt:periapsis, 35000, 250000, .05, 1).
+until ship:obt:periapsis < 36000 {
+    set tval to remap(ship:obt:periapsis, 36000, 250000, .05, 1).
     autostage().
     lock throttle to tval.
     wait 0.01.
 } set tval to 0. lock throttle to 0. unlock steering.
 
 // WAIT
+clearscreen. print "Returning to Kerbin.".
 wait until ship:altitude < 250000.
 set warp to 2.
 wait until ship:altitude < 100000.
 set warp to 0. wait until kuniverse:timewarp:issettled.
 
-// BURN AT PERIAPSIS TIL PERIAPSIS < 30km or out of fuel
+// BURN TIL PERIAPSIS < 30km or out of fuel
+clearscreen. print "Burning off extra fuel.".
 lock steering to ship:retrograde. wait 5.
 until 0 {
     if ship:obt:periapsis < 30000 { break. }
@@ -135,24 +139,21 @@ until 0 {
     wait .01.
 } lock throttle to 0. unlock steering.
 
-// STAGE TIL PARACHUTES - REENTRY
+// REENTRY
 clearscreen.
 print "Preparing for re-entry.".
 lock steering to ship:prograde. wait 4.
 stage. wait 2.
-
 print "Added drag chute trigger...".
 when ((ship:airspeed < 420) and (alt:radar < 2500)) then {
     print "Deploying drag chutes.".
     stage.
 }
-
 print "Added parachute trigger.".
 when ((ship:airspeed < 250) and (alt:radar < 1200)) then {
     print "Deploying parachutes.".
     stage.
 }
-
 until ship:airspeed < .5 {
     print "ALT:RADAR: " + round(alt:radar, 2) + "    " at (5, 5).
     lock steering to ship:srfretrograde.
