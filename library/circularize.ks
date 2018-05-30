@@ -18,7 +18,9 @@ until runmode = 0 {
         set tval to 0.
         
         if (eta:apoapsis > 20)  {
-            warpto(time:seconds + (eta:apoapsis - 20)).
+            if kuniverse:timewarp:warp = 0 {
+                warpto(time:seconds + (eta:apoapsis - 20)).
+            }
         }
         lock steering to heading(tgt_direction, 0).
         
