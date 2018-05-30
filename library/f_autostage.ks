@@ -1,7 +1,8 @@
-set prev_thrust to 0.
-
 function autostage {
     declare local stage_event to 0.
+    if not (defined prev_thrust) {
+        set prev_thrust to 0.
+    }
     if maxthrust < (prev_thrust - 10) {
         lock throttle to 0. wait .5.
         stage. wait .5.
